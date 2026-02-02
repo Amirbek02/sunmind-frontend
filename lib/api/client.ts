@@ -5,7 +5,7 @@ import type { LoginRequest, LoginResponse, RegisterRequest, UserResponse, ApiErr
 class ApiClient {
   private baseURL: string;
 
-  constructor(baseURL: string = API_CONFIG.baseURL) {
+  constructor(baseURL: string = process.env.REACT_APP_BASE_URL || API_CONFIG.baseURL) {
     this.baseURL = baseURL;
   }
 
