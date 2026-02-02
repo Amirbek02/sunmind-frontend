@@ -33,4 +33,6 @@ export const removeAuthToken = () => {
 // Настройки API
 export const API_CONFIG = {
   baseURL: 'http://localhost:5000',
+  wsURL: 'ws://localhost:5000',
+  timeout: 30000, // 30 секунд
 };

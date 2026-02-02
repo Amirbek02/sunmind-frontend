@@ -12,6 +12,7 @@ const roleLabels: Record<User['role'], string> = {
   guest: 'Гость',
   admin: 'Администратор',
   instructor: 'Инструктор',
+  user: '',
 };
 
 export function UserModal({ user, onClose, onLogout }: UserModalProps) {

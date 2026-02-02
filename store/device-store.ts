@@ -8,13 +8,14 @@ import type {
   TelemetryMessage,
   DeviceConnectionMessage,
   CommandAckMessage,
+  ErrorMessage,
 } from '@/lib/api/types';
 
 interface DeviceState {
   devices: Map<string, Device>;
   deviceTelemetry: Map<string, DeviceTelemetry>;
   selectedDeviceId: string | null;
-  
+
   // Действия
   setDevices: (devices: Device[]) => void;
   addDevice: (device: Device) => void;
@@ -22,7 +23,7 @@ interface DeviceState {
   removeDevice: (deviceId: string) => void;
   setSelectedDevice: (deviceId: string | null) => void;
   updateTelemetry: (deviceId: string, telemetry: DeviceTelemetry) => void;
-  
+
   // WebSocket обработчики
   initializeWebSocket: () => () => void; // Возвращает функцию очистки
 }
@@ -60,10 +61,10 @@ export const useDeviceStore = create<DeviceState>((set, get) => ({
     set((state) => {
       const newDevices = new Map(state.devices);
       newDevices.delete(deviceId);
-      
+
       const newTelemetry = new Map(state.deviceTelemetry);
       newTelemetry.delete(deviceId);
-      
+
       return {
         devices: newDevices,
         deviceTelemetry: newTelemetry,
@@ -85,14 +86,16 @@ export const useDeviceStore = create<DeviceState>((set, get) => ({
   },
 
   initializeWebSocket: () => {
-    const handleMessage = (message: TelemetryMessage | DeviceConnectionMessage | CommandAckMessage) => {
+    const handleMessage = (
+      message: TelemetryMessage | DeviceConnectionMessage | CommandAckMessage | ErrorMessage,
+    ) => {
       if (message.type === 'telemetry') {
         const { device_id, data } = message;
         get().updateTelemetry(device_id, {
           ...data,
           timestamp: data.timestamp || new Date().toISOString(),
         });
-        
+
         // Обновляем статус устройства как онлайн
         get().updateDevice(device_id, {
           is_online: true,
@@ -101,7 +104,7 @@ export const useDeviceStore = create<DeviceState>((set, get) => ({
       } else if (message.type === 'device_connection') {
         const { device_id, connected, device_name } = message;
         const device = get().devices.get(device_id);
-        
+
         if (device) {
           get().updateDevice(device_id, {
             is_online: connected,
