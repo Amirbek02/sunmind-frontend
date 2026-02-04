@@ -89,7 +89,7 @@ class ApiClient {
     });
   }
   async toggle(): Promise<Review> {
-    return this.request<Review>('/led/toggle', {
+    return this.request<Review>('/light/toggle', {
       method: 'POST',
     });
   }
