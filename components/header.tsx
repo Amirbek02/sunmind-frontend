@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -29,12 +30,7 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Логотип */}
           <Link href="/" className="flex items-center space-x-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500">
-              <span className="text-xl font-bold text-white">S</span>
-            </div>
-            <span className="text-xl font-bold text-gray-900 dark:text-white">
-              SunMind
-            </span>
+            <Image src="/logo.png" alt="SunMind Logo" width={80} height={40} />
           </Link>
 
           {/* Desktop Navigation */}
@@ -49,8 +45,7 @@ export function Header() {
                     isActive
                       ? 'text-orange-600 dark:text-orange-400'
                       : 'text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
-                  }`}
-                >
+                  }`}>
                   {item.label}
                 </Link>
               );
@@ -62,8 +57,7 @@ export function Header() {
             {isAuthenticated && user ? (
               <button
                 onClick={() => setIsUserModalOpen(true)}
-                className="flex items-center space-x-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-              >
+                className="flex items-center space-x-2 rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-yellow-400 to-orange-500">
                   <span className="text-sm font-semibold text-white">
                     {user.name.charAt(0).toUpperCase()}
@@ -75,14 +69,12 @@ export function Header() {
               <div className="hidden items-center space-x-2 md:flex">
                 <Link
                   href="/auth/login"
-                  className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-                >
+                  className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800">
                   Вход
                 </Link>
                 <Link
                   href="/auth/register"
-                  className="rounded-lg bg-gradient-to-r from-yellow-400 to-orange-500 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-                >
+                  className="rounded-lg bg-gradient-to-r from-yellow-400 to-orange-500 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90">
                   Регистрация
                 </Link>
               </div>
@@ -92,8 +84,7 @@ export function Header() {
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="md:hidden rounded-lg p-2 text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800"
-              aria-label="Toggle menu"
-            >
+              aria-label="Toggle menu">
               <svg
                 className="h-6 w-6"
                 fill="none"
@@ -101,8 +92,7 @@ export function Header() {
                 strokeLinejoin="round"
                 strokeWidth="2"
                 viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
+                stroke="currentColor">
                 {isMenuOpen ? (
                   <path d="M6 18L18 6M6 6l12 12" />
                 ) : (
@@ -128,8 +118,7 @@ export function Header() {
                       isActive
                         ? 'text-orange-600 dark:text-orange-400'
                         : 'text-gray-700 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
-                    }`}
-                  >
+                    }`}>
                     {item.label}
                   </Link>
                 );
@@ -139,15 +128,13 @@ export function Header() {
                   <Link
                     href="/auth/login"
                     onClick={() => setIsMenuOpen(false)}
-                    className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300"
-                  >
+                    className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300">
                     Вход
                   </Link>
                   <Link
                     href="/auth/register"
                     onClick={() => setIsMenuOpen(false)}
-                    className="px-3 py-2 text-sm font-medium text-orange-600 dark:text-orange-400"
-                  >
+                    className="px-3 py-2 text-sm font-medium text-orange-600 dark:text-orange-400">
                     Регистрация
                   </Link>
                 </>
@@ -159,11 +146,7 @@ export function Header() {
 
       {/* User Modal */}
       {isUserModalOpen && (
-        <UserModal
-          user={user!}
-          onClose={() => setIsUserModalOpen(false)}
-          onLogout={handleLogout}
-        />
+        <UserModal user={user!} onClose={() => setIsUserModalOpen(false)} onLogout={handleLogout} />
       )}
     </header>
   );
