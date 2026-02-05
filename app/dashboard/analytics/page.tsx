@@ -14,13 +14,11 @@ export default function AnalyticsPage() {
   const canViewFullAnalytics = user?.role === 'admin' || user?.role === 'instructor';
 
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    // <ProtectedRoute>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Аналитика
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Аналитика</h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
             Анализ работы светильников и статистика использования
           </p>
@@ -34,8 +32,7 @@ export default function AnalyticsPage() {
               period === 'day'
                 ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white'
                 : 'bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-            }`}
-          >
+            }`}>
             День
           </button>
           <button
@@ -44,8 +41,7 @@ export default function AnalyticsPage() {
               period === 'week'
                 ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white'
                 : 'bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-            }`}
-          >
+            }`}>
             Неделя
           </button>
           <button
@@ -54,8 +50,7 @@ export default function AnalyticsPage() {
               period === 'month'
                 ? 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white'
                 : 'bg-white text-gray-700 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
-            }`}
-          >
+            }`}>
             Месяц
           </button>
         </div>
@@ -64,8 +59,8 @@ export default function AnalyticsPage() {
         {!canViewFullAnalytics && (
           <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20">
             <p className="text-sm text-yellow-800 dark:text-yellow-200">
-              Вы просматриваете базовую аналитику. Для доступа к полной
-              аналитике обратитесь к администратору.
+              Вы просматриваете базовую аналитику. Для доступа к полной аналитике обратитесь к
+              администратору.
             </p>
           </div>
         )}
@@ -73,8 +68,8 @@ export default function AnalyticsPage() {
         <div className="mx-auto max-w-7xl">
           <AnalyticsCharts period={period} />
         </div>
-        </div>
       </div>
-    </ProtectedRoute>
+    </div>
+    // </ProtectedRoute>
   );
 }
