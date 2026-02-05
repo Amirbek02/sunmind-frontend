@@ -30,7 +30,7 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Логотип */}
           <Link href="/" className="flex items-center space-x-2">
-            <Image src="/logo.png" alt="SunMind Logo" width={80} height={40} />
+            <Image src="./logo.png" alt="SunMind Logo" width={80} height={40} />
           </Link>
 
           {/* Desktop Navigation */}
