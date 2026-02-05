@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
@@ -30,7 +29,10 @@ export function Header() {
         <div className="flex h-16 items-center justify-between">
           {/* Логотип */}
           <Link href="/" className="flex items-center space-x-2">
-            <Image src="./logo.png" alt="SunMind Logo" width={80} height={40} />
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-yellow-400 to-orange-500">
+              <span className="text-xl font-bold text-white">S</span>
+            </div>
+            <span className="text-xl font-bold text-gray-900 dark:text-white">SunMind</span>
           </Link>
 
           {/* Desktop Navigation */}
