@@ -32,7 +32,7 @@ export const removeAuthToken = () => {
 
 // Настройки API
 export const API_CONFIG = {
-  baseURL: 'http://localhost:5000',
-  wsURL: 'http://localhost:5000',
+  baseURL: 'https://sunmind-backend.vercel.app',
+  wsURL: 'https://sunmind-backend.vercel.app',
   timeout: 30000, // 30 секунд
 };
