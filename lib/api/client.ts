@@ -3,6 +3,9 @@ import { API_CONFIG, getAuthToken } from './config';
 import type { LoginRequest, LoginResponse, RegisterRequest, UserResponse, ApiError } from './types';
 
 class ApiClient {
+  mode(deviceId: string | null, mode: string) {
+    throw new Error('Method not implemented.');
+  }
   private baseURL: string;
 
   constructor(baseURL: string = process.env.REACT_APP_BASE_URL || API_CONFIG.baseURL) {
@@ -91,6 +94,12 @@ class ApiClient {
   async toggle(): Promise<Review> {
     return this.request<Review>('/light/toggle', {
       method: 'POST',
+    });
+  }
+  async setControlMode(mode: 'manual' | 'auto'): Promise<Review> {
+    return this.request<Review>('/light/mode', {
+      method: 'POST',
+      body: JSON.stringify({ mode }),
     });
   }
 

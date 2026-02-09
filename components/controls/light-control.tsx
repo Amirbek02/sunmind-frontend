@@ -6,7 +6,8 @@ import { toast } from 'react-hot-toast';
 import type { LightMode } from '@/types';
 
 export function LightControl() {
-  const { settings, togglePower, setBrightness, setMode, resetToDefault } = useLightStore();
+  const { settings, togglePower, setBrightness, setMode, setControlMode, resetToDefault } =
+    useLightStore();
   const [isConfirming, setIsConfirming] = useState(false);
 
   const handleTogglePower = () => {
@@ -23,16 +24,47 @@ export function LightControl() {
     }
   };
 
-  const handleBrightnessChange = (value: number) => {
+  const handleBrightnessChange = async (value: number) => {
     setBrightness(value);
-    if (settings.isOn) {
-      toast.success(`Яркость: ${value}%`, { duration: 1000 });
+
+    try {
+      const response = await fetch(`http://localhost:5000/light/brightness`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: value, turn_on_if_off: true }),
+      });
+
+      if (response.ok) {
+        toast.success(`Яркость: ${Math.round((value / 255) * 100)}%`);
+      }
+    } catch (error) {
+      toast.error('Не удалось изменить яркость');
     }
   };
 
-  const handleModeChange = (mode: LightMode) => {
+  const MODE_BRIGHTNESS: Record<LightMode, number> = {
+    economy: 64,
+    maximum: 255,
+    default: 128,
+    custom: 128,
+  };
+
+  const handleModeChange = async (mode: LightMode) => {
     setMode(mode);
-    toast.success(`Режим изменен: ${getModeLabel(mode)}`);
+    const newBrightness = MODE_BRIGHTNESS[mode];
+    setBrightness(newBrightness);
+
+    toast.success(`Режим: ${getModeLabel(mode)}`);
+
+    try {
+      await fetch(`http://localhost:5000/light/brightness`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: newBrightness }),
+      });
+    } catch (error) {
+      toast.error('Не удалось синхронизировать режим с ESP32');
+    }
   };
 
   const handleReset = () => {
@@ -50,6 +82,12 @@ export function LightControl() {
     return labels[mode];
   };
 
+  // Новый функционал: режим управления (ручной/авто)
+  const handleControlModeChange = (mode: 'manual' | 'auto') => {
+    setControlMode(mode);
+    toast.success(`Режим управления: ${mode === 'manual' ? 'Ручной' : 'Автоматический'}`);
+  };
+
   return (
     <div className="space-y-6">
       {/* Включение/выключение */}
@@ -60,7 +98,7 @@ export function LightControl() {
         <div className="flex items-center justify-center">
           <button
             onClick={handleTogglePower}
-            disabled={isConfirming}
+            disabled={isConfirming || settings.controlMode === 'auto'} // нельзя включать вручную в авто
             className={`relative flex h-32 w-32 items-center justify-center rounded-full transition-all duration-300 ${
               settings.isOn
                 ? 'bg-gradient-to-br from-yellow-400 to-orange-500 shadow-lg shadow-orange-500/50'
@@ -95,32 +133,56 @@ export function LightControl() {
         </p>
       </div>
 
-      {/* Регулировка яркости */}
+      {/* Режим управления */}
+      <div className="rounded-lg border bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">
+          Режим управления
+        </h3>
+        <div className="flex gap-4">
+          {['manual', 'auto'].map((mode) => (
+            <button
+              key={mode}
+              onClick={() => handleControlModeChange(mode as 'manual' | 'auto')}
+              className={`flex-1 rounded-lg border p-3 text-center font-medium transition-colors ${
+                settings.controlMode === mode
+                  ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20'
+                  : 'border-gray-200 bg-white hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600'
+              }`}>
+              {mode === 'manual' ? 'Ручной' : 'Автоматический'}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Яркость */}
       <div className="rounded-lg border bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Яркость</h3>
         <div className="space-y-4">
           <input
             type="range"
             min="0"
-            max="100"
+            max="255"
             value={settings.brightness}
             onChange={(e) => handleBrightnessChange(Number(e.target.value))}
+            disabled={settings.controlMode === 'auto'} // отключаем в авто
             className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-gray-200 dark:bg-gray-700"
             style={{
-              background: `linear-gradient(to right, #f59e0b 0%, #f59e0b ${settings.brightness}%, #e5e7eb ${settings.brightness}%, #e5e7eb 100%)`,
+              background: `linear-gradient(to right, #f59e0b 0%, #f59e0b ${Math.round(
+                (settings.brightness / 255) * 100,
+              )}%, #e5e7eb ${settings.brightness}%, #e5e7eb 100%)`,
             }}
           />
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600 dark:text-gray-400">0%</span>
             <span className="text-lg font-semibold text-orange-600 dark:text-orange-400">
-              {settings.brightness}%
+              {Math.round((settings.brightness / 255) * 100)}%
             </span>
             <span className="text-sm text-gray-600 dark:text-gray-400">100%</span>
           </div>
         </div>
       </div>
 
-      {/* Режимы */}
+      {/* Режимы работы */}
       <div className="rounded-lg border bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <h3 className="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Режимы работы</h3>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

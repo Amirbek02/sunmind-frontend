@@ -8,7 +8,7 @@ interface UserModalProps {
   onLogout: () => void;
 }
 
-const roleLabels: Record<User['role'], string> = {
+const roleLabels: Record<string, string> = {
   guest: 'Гость',
   admin: 'Администратор',
   instructor: 'Инструктор',
@@ -16,6 +16,16 @@ const roleLabels: Record<User['role'], string> = {
 };
 
 export function UserModal({ user, onClose, onLogout }: UserModalProps) {
+  console.log('login users', user);
+
+  const userRoleLabel = user.roles.length
+    ? user.roles
+        .map((role) => roleLabels[role.role_name.toLowerCase()] || role.role_name)
+        .join(', ')
+    : 'Гость';
+
+  console.log('userLabel', userRoleLabel);
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-end-safe justify-end bg-black/50 p-4"
@@ -56,7 +66,7 @@ export function UserModal({ user, onClose, onLogout }: UserModalProps) {
 
           <div>
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Роль</label>
-            <p className="mt-1 text-gray-900 dark:text-white">{roleLabels[user.role]}</p>
+            <p className="mt-1 text-gray-900 dark:text-white">{userRoleLabel}</p>
           </div>
 
           <div className="pt-4">

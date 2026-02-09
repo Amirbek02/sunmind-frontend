@@ -20,7 +20,7 @@ export interface UserResponse {
   id: string;
   name: string;
   email: string;
-  role: string;
+  roles: string;
   created_at: string;
 }
 
@@ -31,11 +31,7 @@ export interface ApiError {
 }
 
 // WebSocket типы
-export type WebSocketMessageType =
-  | 'telemetry'
-  | 'device_connection'
-  | 'command_ack'
-  | 'error';
+export type WebSocketMessageType = 'telemetry' | 'device_connection' | 'command_ack' | 'error';
 
 export interface TelemetryMessage {
   type: 'telemetry';

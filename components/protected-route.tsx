@@ -13,22 +13,23 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
   const router = useRouter();
   const { isAuthenticated, user } = useAuthStore();
 
+  const hasRole = (roleName: string) =>
+    user?.roles?.some((r) => r.role_name.toLowerCase() === roleName.toLowerCase());
+
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/auth/login');
       return;
     }
 
-    if (requiredRole && user?.role !== requiredRole && user?.role !== 'admin') {
+    if (requiredRole && !hasRole(requiredRole) && !hasRole('admin')) {
       router.push('/dashboard/control');
     }
   }, [isAuthenticated, user, requiredRole, router]);
 
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (!isAuthenticated) return null;
 
-  if (requiredRole && user?.role !== requiredRole && user?.role !== 'admin') {
+  if (requiredRole && !hasRole(requiredRole) && !hasRole('admin')) {
     return null;
   }
 

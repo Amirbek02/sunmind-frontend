@@ -8,7 +8,7 @@ import type { LightSettings, LightMode } from '@/types';
 import { apiClient } from '@/lib/api/client';
 
 interface LightState {
-  settings: LightSettings;
+  settings: LightSettings & { controlMode: 'manual' | 'auto' }; // Добавили controlMode
   deviceId: string | null;
   updateSettings: (updates: Partial<LightSettings>) => void;
   setBrightness: (brightness: number) => void;
@@ -17,12 +17,14 @@ interface LightState {
   resetToDefault: () => void;
   setDeviceId: (deviceId: string | null) => void;
   syncWithDevice: (deviceId: string) => void;
+  setControlMode: (mode: 'manual' | 'auto') => void; // Новый метод
 }
 
-const defaultSettings: LightSettings = {
+const defaultSettings: LightSettings & { controlMode: 'manual' | 'auto' } = {
   isOn: false,
   brightness: 50,
   mode: 'default',
+  controlMode: 'manual', // по умолчанию ручной режим
 };
 
 export const useLightStore = create<LightState>()(
@@ -38,12 +40,13 @@ export const useLightStore = create<LightState>()(
       },
 
       setBrightness: (brightness: number) => {
-        const { deviceId } = get();
+        const { deviceId, settings } = get();
+        if (settings.controlMode === 'auto') return; // не меняем яркость в авто
+
         set((state) => ({
           settings: { ...state.settings, brightness },
         }));
 
-        // Отправляем команду устройству через WebSocket
         if (deviceId && wsClient.isConnected()) {
           try {
             wsClient.sendCommand({
@@ -60,9 +63,7 @@ export const useLightStore = create<LightState>()(
 
       setMode: (mode: LightMode) => {
         const { deviceId, settings } = get();
-        const modeSettings: Partial<LightSettings> = {
-          mode,
-        };
+        const modeSettings: Partial<LightSettings> = { mode };
 
         switch (mode) {
           case 'economy':
@@ -80,7 +81,6 @@ export const useLightStore = create<LightState>()(
           settings: { ...state.settings, ...modeSettings },
         }));
 
-        // Отправляем команду устройствам
         if (deviceId && wsClient.isConnected()) {
           try {
             const brightness = modeSettings.brightness || settings.brightness;
@@ -98,6 +98,8 @@ export const useLightStore = create<LightState>()(
 
       togglePower: async () => {
         const { deviceId, settings } = get();
+        if (settings.controlMode === 'auto') return; // не меняем в авто
+
         const newState = !settings.isOn;
 
         set((state) => ({
@@ -109,7 +111,6 @@ export const useLightStore = create<LightState>()(
           console.log('response', response);
         } catch (error) {
           console.error('Ошибка при отправке команды переключения питания:', error);
-          // Откатываем изменение при ошибке
           set((state) => ({
             settings: { ...state.settings, isOn: !newState },
           }));
@@ -141,6 +142,21 @@ export const useLightStore = create<LightState>()(
             },
             deviceId,
           }));
+        }
+      },
+
+      // Новый метод для управления режимом
+      setControlMode: async (mode: 'manual' | 'auto') => {
+        set((state) => ({
+          settings: { ...state.settings, controlMode: mode },
+        }));
+
+        try {
+          const response = await apiClient.setControlMode(mode);
+          console.log('mode toggle', response);
+          return response;
+        } catch (error) {
+          console.error('Ошибка при отправке команды режима управления:', error);
         }
       },
     }),

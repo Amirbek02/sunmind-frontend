@@ -5,7 +5,7 @@ import { persist } from 'zustand/middleware';
 import { apiClient } from '@/lib/api/client';
 import { setAuthToken, removeAuthToken } from '@/lib/api/config';
 import { wsClient } from '@/lib/api/websocket';
-import type { User } from '@/types';
+import type { User, Role } from '@/types';
 
 interface AuthState {
   user: User | null;
@@ -18,6 +18,13 @@ interface AuthState {
   updateUser: (user: Partial<User>) => void;
   fetchCurrentUser: () => Promise<void>;
 }
+
+// Дефолтная роль, если с бэка вдруг не пришли роли
+const defaultUserRole: Role = {
+  id: 0,
+  role_name: 'USER',
+  description: 'Default user role',
+};
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -33,14 +40,13 @@ export const useAuthStore = create<AuthState>()(
           const response = await apiClient.login({ email, password });
 
           // Получаем информацию о пользователе
-          console.log('token: ', response.access_token);
           const user = await apiClient.getCurrentUser(response.access_token);
-          console.log('user', user);
 
           set({
             user: {
               ...user,
-              role: (user.role as User['role']) || 'user',
+              roles:
+                Array.isArray(user.roles) && user.roles.length > 0 ? user.roles : [defaultUserRole],
             },
             token: response.access_token,
             isAuthenticated: true,
@@ -71,14 +77,14 @@ export const useAuthStore = create<AuthState>()(
           set({
             user: {
               ...user,
-              role: (user.role as User['role']) || 'user',
+              roles:
+                Array.isArray(user.roles) && user.roles.length > 0 ? user.roles : [defaultUserRole],
             },
             token: loginResponse.access_token,
             isAuthenticated: true,
             isLoading: false,
           });
 
-          // Подключаем WebSocket после успешной регистрации
           if (typeof window !== 'undefined') {
             wsClient.connect();
           }
@@ -111,29 +117,27 @@ export const useAuthStore = create<AuthState>()(
 
       fetchCurrentUser: async () => {
         const { token } = get();
-        if (!token) {
-          return;
-        }
+        if (!token) return;
 
         set({ isLoading: true });
         try {
           const user = await apiClient.getCurrentUser();
+
           set({
             user: {
               ...user,
-              role: (user.role as User['role']) || 'user',
+              roles:
+                Array.isArray(user.roles) && user.roles.length > 0 ? user.roles : [defaultUserRole],
             },
             isAuthenticated: true,
             isLoading: false,
           });
 
-          // Подключаем WebSocket если еще не подключен
           if (!wsClient.isConnected()) {
             wsClient.connect();
           }
         } catch (error) {
           console.error('Ошибка при получении пользователя:', error);
-          // Если токен невалидный, выходим
           get().logout();
           set({ isLoading: false });
         }
@@ -141,11 +145,8 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      // Восстанавливаем токен при загрузке
       onRehydrateStorage: () => (state) => {
-        // Пытаемся получить актуальную информацию о пользователе при загрузке
         if (state?.token && typeof window !== 'undefined') {
-          // Используем setTimeout чтобы дать время Zustand восстановить состояние
           setTimeout(() => {
             state.fetchCurrentUser();
           }, 100);

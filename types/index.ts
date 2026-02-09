@@ -1,11 +1,17 @@
 // Типы пользователей и ролей
 export type UserRole = 'guest' | 'admin' | 'instructor' | 'user';
 
+export interface Role {
+  id: number;
+  role_name: string; // "USER", "ADMIN"
+  description: string;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
+  roles: Role[];
   created_at?: string;
 }
 
