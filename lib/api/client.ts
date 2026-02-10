@@ -1,4 +1,4 @@
-import { Review } from '@/types';
+import { NewReview, Review } from '@/types';
 import { API_CONFIG, getAuthToken } from './config';
 import type { LoginRequest, LoginResponse, RegisterRequest, UserResponse, ApiError } from './types';
 
@@ -79,14 +79,14 @@ class ApiClient {
   }
 
   async getReviews(): Promise<Review[]> {
-    return this.request<Review[]>('/api/reviews', {
+    return this.request<Review[]>('/review', {
       method: 'GET',
     });
   }
 
   // Добавить отзыв
-  async addReview(data: Review): Promise<Review> {
-    return this.request<Review>('/api/reviews', {
+  async addReview(data: NewReview): Promise<Review> {
+    return this.request<Review>('/review', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -105,7 +105,7 @@ class ApiClient {
 
   // Удалить отзыв (опционально)
   async deleteReview(id: string): Promise<void> {
-    return this.request<void>(`/api/reviews/${id}`, {
+    return this.request<void>(`/review/${id}`, {
       method: 'DELETE',
     });
   }

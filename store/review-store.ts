@@ -1,11 +1,11 @@
 import { apiClient } from '@/lib/api/client';
-import { Review } from '@/types';
+import { NewReview, Review } from '@/types';
 import { create } from 'zustand';
 
 interface ReviewState {
   reviews: Map<string, Review>;
   setReviews: (reviews: Review[]) => void;
-  addReview: (review: Review) => Promise<void>;
+  addReview: (review: NewReview) => Promise<void>;
   fetchReviews: () => Promise<void>;
 }
 
@@ -30,7 +30,7 @@ export const useReviewStore = create<ReviewState>((set, get) => ({
   },
 
   // Асинхронное добавление отзыва с сохранением на сервере
-  addReview: async (review: Review) => {
+  addReview: async (review: NewReview) => {
     try {
       // Сохраняем отзыв на сервере
       const savedReview = await apiClient.addReview(review);

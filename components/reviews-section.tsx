@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import type { Review } from '@/types';
+import type { NewReview, Review } from '@/types';
 import { useReviewStore } from '@/store/review-store';
 
 export function ReviewsSection() {
@@ -41,8 +41,7 @@ export function ReviewsSection() {
     setIsSubmitting(true);
 
     try {
-      const newReview: Review = {
-        id: Date.now().toString(), // Можно убрать, если сервер сам генерирует ID
+      const newReview: NewReview = {
         author: author || 'Анонимный пользователь',
         text,
         rating,
