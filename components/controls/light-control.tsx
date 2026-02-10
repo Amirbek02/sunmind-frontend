@@ -28,7 +28,7 @@ export function LightControl() {
     setBrightness(value);
 
     try {
-      const response = await fetch(`http://localhost:5000/light/brightness`, {
+      const response = await fetch(`https://sunmind-backend.vercel.app/light/brightness`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: value, turn_on_if_off: true }),
@@ -57,7 +57,7 @@ export function LightControl() {
     toast.success(`Режим: ${getModeLabel(mode)}`);
 
     try {
-      await fetch(`http://localhost:5000/light/brightness`, {
+      await fetch(`https://sunmind-backend.vercel.app/light/brightness`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ value: newBrightness }),

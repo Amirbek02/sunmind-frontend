@@ -10,7 +10,7 @@ export function MotionSensor() {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const response = await fetch('http://localhost:5000/light/status');
+        const response = await fetch('https://sunmind-backend.vercel.app/light/status');
         const data = await response.json();
 
         if (data.status === 'success' && data.device) {
